@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import twitterLogo from "./images/twitterLogo.png";
-import styled from "styled-components";
 import { useHistory } from "react-router-dom";
-import { getRandomColor } from "./utils.js";
-import ChangingButton from "./components/ChangingButton";
+import styled from "styled-components";
 import SyncLoader from "react-spinners/SyncLoader";
+import twitterLogo from "../images/twitterLogo.png";
+import { getRandomColor } from "../utils.js";
+import ChangingButton from "../components/ChangingButton";
 
 function App() {
   const [quote, setQuote] = useState("");
@@ -13,6 +13,26 @@ function App() {
   const [triggerFetch, setTriggerFetch] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
 
+  const capFirstLetter = (word) => {
+    return word
+      .split("")
+      .map((letter) => {
+        if (word.indexOf(letter) === 0) {
+          return letter.toUpperCase();
+        } else return letter.toLowerCase();
+      })
+      .join("");
+  };
+  const getAuthorInitial = (author) => {
+    const names = author.split(" ");
+    const firstNameInitial = capFirstLetter(names[0]).split("")[0];
+    const restingNames = names
+      .slice(1)
+      .map((name) => capFirstLetter(name))
+      .join(" ");
+    return `${firstNameInitial}. ${restingNames}`;
+  };
+
   useEffect(() => {
     const getQuote = () => {
       return fetch("http://localhost:5000/newQuote")
@@ -20,7 +40,7 @@ function App() {
         .then((data) => {
           const { quote, author, subject, carrerYear, text } = data;
           const { name, link } = text;
-          setQuote(`'${quote}' - ${author}`);
+          setQuote(`'${quote}' - ${getAuthorInitial(author)}`);
           setQuoteDetails([subject, carrerYear, name, link]);
         });
     };
@@ -29,7 +49,6 @@ function App() {
   }, [triggerFetch]);
 
   const history = useHistory();
-
   const changeButton = () => {
     setShowDetails(!showDetails);
   };
@@ -120,7 +139,7 @@ const Button = styled.button({
   borderRadius: "5px",
   cursor: "pointer",
   padding: "4px",
-  boxShadow: "inset 0px 0px 3px white",
+  boxShadow: "inset 0px 0px 3px whitesmoke",
 });
 const TwitterLogo = styled.img({
   width: "20px",

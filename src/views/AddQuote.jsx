@@ -14,9 +14,30 @@ const AddQuote = () => {
   const [text, setText] = useState("");
   const [link, setLink] = useState("");
 
+  const [ObjToPost, setObjToPost] = useState(undefined);
+
   useEffect(() => {
     setColor(getRandomColor());
   }, []);
+
+  useEffect(() => {
+    if (subject !== "") {
+      setCarrerYear(subjects.find((subj) => subj.name === subject).year);
+    }
+  }, [subject]);
+
+  useEffect(() => {
+    ObjToPost &&
+      fetch("http://localhost:5000/addQuote", {
+        method: "POST",
+        body: JSON.stringify(ObjToPost),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((res) => console.log(res))
+        .catch((err) => console.log("Error:", err));
+  }, [ObjToPost]);
 
   const history = useHistory();
 
@@ -29,9 +50,9 @@ const AddQuote = () => {
         author !== "" &&
         text !== "" &&
         link !== "" &&
-        carrerYear !== ""
+        subject !== ""
       ) {
-        console.log({
+        setObjToPost({
           quote,
           author,
           subject,
@@ -60,57 +81,53 @@ const AddQuote = () => {
   return (
     <Wrapper color={color}>
       <Container>
-        Cita:
+        Cita
         <Input
-          placeholder="Agregá tu cita sin comillas. Ej: La comunicación es..."
+          color={color}
+          placeholder="Agregá tu cita sin comillas. Ej: El proletariado..."
           width="100%"
           value={quote}
           onChange={(e) => setQuote(e.target.value)}
         />
-        Autor:
+        Autor
         <Section>
           <Input
-            placeholder="Nombre"
+            color={color}
+            placeholder="Nombre. Ej: Karl"
             value={authorFName}
             onChange={(e) => setAuthorFName(e.target.value)}
           />
           <Input
-            placeholder="Apellido"
+            color={color}
+            placeholder="Apellido. Ej: Marx"
             value={authorLName}
             onChange={(e) => setAuthorLName(e.target.value)}
           />
         </Section>
-        Materia:
-        <Select value={subject} onChange={(e) => setSubject(e.target.value)}>
+        Materia
+        <Select
+          color={color}
+          value={subject}
+          onChange={(e) => setSubject(e.target.value)}
+        >
           {subjects.map((subj) => {
             return (
-              <option key={subj} value={subj}>
-                {subj}
+              <option key={subj.name} value={subj.name}>
+                {subj.name}
               </option>
             );
           })}
         </Select>
-        Año de carrera:
-        <Select
-          value={carrerYear}
-          onChange={(e) => setCarrerYear(e.target.value)}
-        >
-          {[1, 2, 3, 4, 5].map((year) => {
-            return (
-              <option key={year} value={year}>
-                {year}
-              </option>
-            );
-          })}
-        </Select>
-        Texto:
+        Texto
         <Input
+          color={color}
           placeholder="Ej: Manifiesto comunista"
           value={text}
           onChange={(e) => setText(e.target.value)}
         />
-        Link:
+        Link
         <Input
+          color={color}
           placeholder="Ej: http://www...."
           value={link}
           onChange={(e) => setLink(e.target.value)}
@@ -150,6 +167,8 @@ const Input = styled.input({
   padding: "1%",
   fontSize: "13px",
   width: (props) => props.width,
+  border: (props) => `1px solid ${props.color}`,
+  margin: "1px",
 });
 const Section = styled.div({
   display: "flex",
@@ -169,6 +188,11 @@ const Button = styled.button({
 const Select = styled.select({
   width: "45%",
   fontSize: "13px",
+  backgroundColor: (props) => props.color,
+  color: "whitesmoke",
+  border: "none",
+  borderRadius: "5px",
+  padding: "5px",
 });
 
 export default AddQuote;
